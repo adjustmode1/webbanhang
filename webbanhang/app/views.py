@@ -14,38 +14,31 @@ def register(request):
         form = CreateUserForm(request.POST)
         if form.is_valid():
             form.save()
+            return redirect('login')
     context = {'form':form}
 
     return render(request,'app/register.html',context)
 def loginPage(request):
-    form = CreateUserForm()
     if request.user.is_authenticated:
         return redirect('home')
-    else:
-        if request.method == 'POST':
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            user = authenticate(request,username=username,password=password)
-            form = CreateUserForm(request.POST)
-            if user is not None:
-                login(request,user)
-                return redirect('home')
-            else:
-                messages.info(request,'user or password not correct')
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request,username=username,password=password)
+        if user is not None:
+            login(request,user)
+            return redirect('home')
+        else:
+            messages.info(request,'user or password not correct')
                 
-        context = {'form':form}
-
-        form = CreateUserForm(request.POST)
-        if form.is_valid():
-            form.save()
-    context = {'form':form}
+    context = {}
     return render(request,'app/login.html',context)
 def logoutPage(request):
     logout(request)
     return redirect('login')
 def home(request):
     if request.user.is_authenticated:
-        customer = request.user.customer
+        customer = request.user
         order, created = Order.objects.get_or_create(customer=customer,complete=False)
         cartItems = order.get_cart_items
     else:
@@ -59,7 +52,7 @@ def home(request):
 # Create your views here.
 def cart(request):
     if request.user.is_authenticated:
-        customer = request.user.customer
+        customer = request.user
         order, created = Order.objects.get_or_create(customer=customer,complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
@@ -74,7 +67,7 @@ def cart(request):
 # Create your views here.
 def checkout(request):
     if request.user.is_authenticated:
-        customer = request.user.customer
+        customer = request.user
         order, created = Order.objects.get_or_create(customer=customer,complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
@@ -89,7 +82,7 @@ def updateItem(request):
     data = json.loads(request.body)
     productId = data['productId']
     action = data['action']
-    customer = request.user.customer
+    customer = request.user
     product = Product.objects.get(id=productId)
     order, created = Order.objects.get_or_create(customer=customer,complete=False)
     orderItem, created = OrderItem.objects.get_or_create(order=order,product=product)
