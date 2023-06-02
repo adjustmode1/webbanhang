@@ -51,18 +51,7 @@
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="{% url 'home'%}">Trang chủ</a>
           </li>
-          <li class="nav-item dropdown">
-            <div class="dropdown">
-              <a class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Sản phẩm
-              </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Sữa</a></li>
-                <li><a class="dropdown-item" href="#">Sữa</a></li>
-                <li><a class="dropdown-item" href="#">Sữa</a></li>
-              </ul>
-            </div>
-          </li>
+
           <li class="nav-item">
             <a class="nav-link" href="{% url 'cart'%}">Cart</a>
           </li>
@@ -70,19 +59,20 @@
             <a class="nav-link" href="#">Liên hệ</a>
           </li>
         </ul>
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <form class="d-flex" role="search" method= POST action="{%url 'search'%}">
+          {% csrf_token %}
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="reseached">
           <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
       </div>
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <div class='form-inline my-2 my-lg-0'>
-          <span>Hello! {{request.user}}</span>
-          <span><a href="{%url 'logout' %}">Logout</a></span>
-        </div>
-        <li class="nav-item"><a class="nav-link" href="#">Đănh nhập</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Đăng ký</a></li>
-      </ul>
+          <div class='form-inline my-2 my-lg-0' id='logout' style="visibility: {{user_login}}" >
+            <span>Hello! {{request.user}}</span>
+            <span><a href="{%url 'logout' %}">Logout</a></span>
+          </div>
+          <div class='form-inline my-2 my-lg-0' id='logout' style="visibility: {{user_not_login}}" >
+            <a class="nav-link" href="/login" >Đănh nhập</a>
+            <a class="nav-link" href="/register" >Đăng ký</a>
+          </div>
       <div class='form-inline my-2 my-lg-0'>
         <p id='cart-total'>{{cartItems}}</p>
         <a href="{% url 'cart' %}">
@@ -100,7 +90,7 @@
   {% block login %}{% endblock login %}
   <!-- footer -->
   <footer class='container-fluid bg-success text-center fixed-bottom p-2 mt-5'>
-    copyright 2022
+    copyright 2023
   </footer> 
   <script src="{%static 'app/js/cart.js' %}" rel="stylesheet"></script>
 

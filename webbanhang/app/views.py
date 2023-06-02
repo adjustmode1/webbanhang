@@ -8,30 +8,57 @@ from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 
 # Create your views here.
+def search(request):
+    if request.method == "POST":
+        reseached = request.POST['reseached']
+        keys = Product.objects.filter(name__contains = reseached)
+    if request.user.is_authenticated:
+        customer = request.user
+        order, created = Order.objects.get_or_create(customer=customer,complete=False)
+        cartItems = order.get_cart_items
+        user_not_login = "hidden"
+        user_login = "show"
+    else:
+        items = []
+        order = {'get_cart_items':0,'get_cart_total':0}
+        cartItems = order['get_cart_items']
+        user_not_login = "show"
+        user_login = "hidden"
+    
+    products = Product.objects.all()
+    return render(request,'app/search.html',{"reseached":reseached,"keys":keys,'products':products,'cartItems':cartItems,"user_not_login":user_not_login,"user_login":user_login})
 def register(request):
     form = CreateUserForm()
+    user_not_login = "show"
+    user_login = "hidden"
     if request.method == 'POST':
         form = CreateUserForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('login')
-    context = {'form':form}
+    context = {'form':form,"user_not_login":user_not_login,"user_login":user_login}
 
     return render(request,'app/register.html',context)
 def loginPage(request):
+    user_not_login = "show"
+    user_login = "hidden"
     if request.user.is_authenticated:
-        return redirect('home')
+        user_not_login = "hidden"
+        user_login = "show"
+        return redirect('home',{"user_not_login":user_not_login,"user_login":user_login})
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request,username=username,password=password)
+        user_not_login = "hidden"
+        user_login = "show"
         if user is not None:
             login(request,user)
-            return redirect('home')
+            return redirect('home',{"user_not_login":user_not_login,"user_login":user_login})
         else:
             messages.info(request,'user or password not correct')
                 
-    context = {}
+    context = {"user_not_login":user_not_login,"user_login":user_login}
     return render(request,'app/login.html',context)
 def logoutPage(request):
     logout(request)
@@ -41,13 +68,16 @@ def home(request):
         customer = request.user
         order, created = Order.objects.get_or_create(customer=customer,complete=False)
         cartItems = order.get_cart_items
+        user_not_login = "hidden"
+        user_login = "show"
     else:
         items = []
         order = {'get_cart_items':0,'get_cart_total':0}
         cartItems = order['get_cart_items']
-    
+        user_not_login = "show"
+        user_login = "hidden"
     products = Product.objects.all()
-    context = {'products':products,'cartItems':cartItems}
+    context = {'products':products,'cartItems':cartItems,"user_not_login":user_not_login,"user_login":user_login}
     return render(request,'app/home.html',context)
 # Create your views here.
 def cart(request):
@@ -56,14 +86,34 @@ def cart(request):
         order, created = Order.objects.get_or_create(customer=customer,complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
-
+        user_not_login = "hidden"
+        user_login = "show"
     else:
         items = []
         order = {'get_cart_items':0,'get_cart_total':0}
         cartItems = order['get_cart_items']
-
-    context = {"items": items,"order":order,'cartItems':cartItems}
+        user_not_login = "show"
+        user_login = "hidden"
+    context = {"items": items,"order":order,'cartItems':cartItems,"user_not_login":user_not_login,"user_login":user_login}
     return render(request,'app/cart.html',context)
+def detail(request):
+    if request.user.is_authenticated:
+        customer = request.user
+        order, created = Order.objects.get_or_create(customer=customer,complete=False)
+        items = order.orderitem_set.all()
+        cartItems = order.get_cart_items
+        user_not_login = "hidden"
+        user_login = "show"
+    else:
+        items = []
+        order = {'get_cart_items':0,'get_cart_total':0}
+        cartItems = order['get_cart_items']
+        user_not_login = "show"
+        user_login = "hidden"
+    id = request.GET.get('id','')
+    product = Product.objects.filter(id=id)
+    context = {"product":product,"items": items,"order":order,'cartItems':cartItems,"user_not_login":user_not_login,"user_login":user_login}
+    return render(request,'app/detail.html',context)
 # Create your views here.
 def checkout(request):
     if request.user.is_authenticated:
@@ -71,11 +121,14 @@ def checkout(request):
         order, created = Order.objects.get_or_create(customer=customer,complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
-
+        user_not_login = "hidden"
+        user_login = "show"
     else:
         items = []
         order = {'get_cart_items':0,'get_cart_total':0}
-    context = {"items": items,"order":order,'cartItems':cartItems}
+        user_not_login = "show"
+        user_login = "hidden"
+    context = {"items": items,"order":order,'cartItems':cartItems,"user_not_login":user_not_login,"user_login":user_login}
     return render(request,'app/checkout.html',context)
 
 def updateItem(request):
@@ -86,7 +139,7 @@ def updateItem(request):
     product = Product.objects.get(id=productId)
     order, created = Order.objects.get_or_create(customer=customer,complete=False)
     orderItem, created = OrderItem.objects.get_or_create(order=order,product=product)
-    
+
     if action == 'add':
         orderItem.quantity +=1
     elif action == 'remove':
