@@ -54,7 +54,7 @@ def loginPage(request):
         user_login = "show"
         if user is not None:
             login(request,user)
-            return redirect('home',{"user_not_login":user_not_login,"user_login":user_login})
+            return redirect('home')
         else:
             messages.info(request,'user or password not correct')
                 
