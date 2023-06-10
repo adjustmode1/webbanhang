@@ -124,6 +124,15 @@ def checkout(request):
         cartItems = order.get_cart_items
         user_not_login = "hidden"
         user_login = "show"
+        if request.method == 'POST':
+            address = request.POST.get('address')
+            cyti = request.POST.get('city')
+            state = request.POST.get('state')
+            mobile = request.POST.get('mobile')
+            country = request.POST.get('country')
+            name = request.POST.get('name')
+            order, created = ShippingAddress.objects.get_or_create(customer=customer,order=order,address=address,cyti=cyti,state=state,mobile=mobile)
+
     else:
         items = []
         order = {'get_cart_items':0,'get_cart_total':0}
