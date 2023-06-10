@@ -7,6 +7,10 @@ class  authorAdmin(admin.ModelAdmin):
     list_filter = (
         ('order', admin.RelatedFieldListFilter),
     )
+          
+    def temp(self,obj):
+        print(obj.customer)
+        return 1
 
 # Register your models here.
 admin.site.register(Product)

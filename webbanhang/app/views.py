@@ -99,7 +99,7 @@ def cart(request):
 def detail(request):
     if request.user.is_authenticated:
         customer = request.user
-        order, created = Order.objects.get_or_create(customer=customer,complete=False)
+        order, created = Order.objects.get_or_create(customer=customer,complete=True)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
         user_not_login = "hidden"
@@ -119,6 +119,7 @@ def checkout(request):
     if request.user.is_authenticated:
         customer = request.user
         order, created = Order.objects.get_or_create(customer=customer,complete=False)
+
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
         user_not_login = "hidden"
@@ -138,7 +139,7 @@ def updateItem(request):
     customer = request.user
     product = Product.objects.get(id=productId)
     order, created = Order.objects.get_or_create(customer=customer,complete=False)
-    orderItem, created = OrderItem.objects.get_or_create(order=order,product=product)
+    orderItem, created = OrderItem.objects.get_or_create(customer=customer,order=order,product=product)
 
     if action == 'add':
         orderItem.quantity +=1
