@@ -11,9 +11,15 @@ class  authorAdmin(admin.ModelAdmin):
     def temp(self,obj):
         print(obj.customer)
         return 1
+class shipping(admin.ModelAdmin):
+    list_display = ('customer','order')
+    list_foreign_key_links = ('customer',)
+    list_filter = (
+        ('order', admin.RelatedFieldListFilter),
+    )
 
 # Register your models here.
 admin.site.register(Product)
 admin.site.register(Order)
 admin.site.register(OrderItem,authorAdmin)
-admin.site.register(ShippingAddress)
+admin.site.register(ShippingAddress,shipping)
